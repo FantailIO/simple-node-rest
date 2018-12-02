@@ -1,0 +1,19 @@
+version: '3'
+services:
+  frontend:
+    build:
+      dockerfile: .
+      args:
+        label: frontend
+        upstream: http://middle:3000/
+  middle:
+    build:
+      dockerfile: .
+      args:
+        label: middle
+        upstream: http://backend:3000/
+  backend:
+    build:
+      dockerfile: .
+      args:
+        label: backend
