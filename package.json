@@ -4,7 +4,15 @@
   "description": " A simple Node REST Client and Server",
   "main": "src/index.js",
   "scripts": {
+    "start": "node src/index.js",
+    "watch": "nodemon src/index.js",
+    "watch-sass": "nodemon -w html/scss -x 'npm run-script sass'",
+    "sass": "node-sass html/scss -o html/css",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "nodemonConfig": {
+    "verbose": true,
+    "ext": "html css scss js"
   },
   "repository": {
     "type": "git",
@@ -17,9 +25,16 @@
   },
   "homepage": "https://github.com/FantailIO/simple-node-rest#readme",
   "dependencies": {
-    "body-parser": "^1.18.3",
-    "cors": "^2.8.5",
     "express": "^4.16.4",
-    "request": "^2.88.0"
+    "node-fetch": "^2.3.0",
+    "zipkin": "^0.14.3",
+    "zipkin-context-cls": "^0.14.2",
+    "zipkin-instrumentation-express": "^0.14.3",
+    "zipkin-instrumentation-fetch": "^0.14.3",
+    "zipkin-transport-http": "^0.14.3"
+  },
+  "devDependencies": {
+    "node-sass": "^4.10.0",
+    "nodemon": "^1.18.7"
   }
 }

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Istio Demo</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/style.css"></link>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+  <div id="app" class="container">
+    <header class="navbar navbar-dark" style="background-color: darkgreen;">
+      <span class="navbar-text text-white h1">
+        Istio Demo
+      </span>
+    </header>
+    <div class="row justify-content-center mt-5 mb-5">
+      <div class="col">
+        <form>
+          <div class="form-group">
+            <label for="formControlRange">Noise ({{noise}}%)</label>
+            <input type="range" v-model="noise" class="form-control-range" id="formControlRange" min="0" max="50" step="5">
+          </div>
+          <button type="button" v-on:click="go" class="btn btn-primary mb-2">Go!</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="row justify-content-center mt-5 mb-5">
+      <div class="col">
+        <figure v-if="hops" class="figure">
+          <figcaption class="figure-caption">Hops</figcaption>
+          <div v-html="hops"> </div>
+        </figure>
+      </div>
+    </div>
+
+    <div class="row justify-content-center mt-5 mb-5">
+      <div class="col">
+        <figure v-if="json" class="figure">
+          <figcaption class="figure-caption">Content</figcaption>
+          <pre>{{json | pretty}}</pre>
+        </figure>
+      </div>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+    var app = new Vue({
+      el: '#app',
+      data: {
+        noise: 25,
+        hops: "",
+        json: null
+      },
+      methods: {
+        go: function() {
+          var options = {}
+          options.headers = {}
+          options.headers['x-failpercent'] = this.noise
+
+          this.hops = ""
+          this.json = null
+
+          window.fetch("/api", options)
+            .then(res => {
+              this.hops = `browser -> ${window.location.href}api (${res.status}) ${res.statusText}<br>`
+              this.json = null
+
+              res.json().then(json => {
+                console.log(json);
+                var thisHop = json;
+                var upstream = thisHop.upstream;
+                do {
+                  this.hops += `${thisHop.label} -> ${upstream.server} (${upstream.status}) ${upstream.statusText}<br>`
+                  thisHop = upstream;
+                  upstream = thisHop.upstream;
+                } while(upstream)
+
+                if(json.content) {
+                  this.json = JSON.stringify(json.content);
+                }
+              }).catch(err => {
+                console.log("Response was not JSON")
+              });
+            });
+        }
+      },
+      filters: {
+        pretty: function(value) {
+          // Don't print a null or empty object
+          if(value && value != JSON.stringify({})) {
+            return JSON.stringify(JSON.parse(value), null, 2);
+          }
+          else return "";
+        }
+      }
+    })
+  </script>
+
+</body>

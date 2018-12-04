@@ -1,0 +1,45 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demo
+      layer: frontend
+  template:
+    metadata:
+      labels:
+        app: demo
+        layer: frontend
+    spec:     # pod spec
+      containers:
+      - name: raken-communications-cont
+        image: docker.rakenapp.com/raken-communication/raken-communication:{{ .Values.versions.raken_communication }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.raken_communication.port }}
+        readinessProbe:
+          httpGet:
+            path: /admin/health
+            port: {{ .Values.raken_communication.port }}
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          failureThreshold: 12 #Try every 5 seconds for 1 Minute
+        resources:
+          requests:
+            memory: "768Mi"
+            cpu: "250m"
+          limits:
+            memory: "1024Mi"
+            cpu: "500m"
+        env:
+        - name: "ENVIRONMENT"
+          value: {{ .Values.raken_communication.environment }}
+        - name: "CONSUL_HOST"
+          value: "{{ .Values.raken_communication.consul.host }}"
+        - name: "CONSUL_PORT"
+          value: "{{ .Values.raken_communication.consul.port }}"
+        - name: "AWS_REGION"
+          value: "us-west-2"

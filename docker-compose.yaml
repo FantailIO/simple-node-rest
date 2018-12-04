@@ -2,18 +2,28 @@ version: '3'
 services:
   frontend:
     build:
-      dockerfile: .
+      context: .
       args:
         label: frontend
-        upstream: http://middle:3000/
+        upstream: http://middle:3000/api
+    external_links:
+    - middle:middle
+    ports:
+    - "3000:3000"
   middle:
     build:
-      dockerfile: .
+      context: .
       args:
         label: middle
-        upstream: http://backend:3000/
+        upstream: http://backend:3000/api
+    external_links:
+    - backend:backend
+    expose:
+    - "3000"
   backend:
     build:
-      dockerfile: .
+      context: .
       args:
         label: backend
+    expose:
+    - "3000"
