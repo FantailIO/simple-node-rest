@@ -7,7 +7,6 @@ ADD src src
 ADD html html
 
 RUN npm install
-RUN npm run-script sass
 
 EXPOSE 3000
 

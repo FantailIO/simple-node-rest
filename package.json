@@ -6,13 +6,11 @@
   "scripts": {
     "start": "node src/index.js",
     "watch": "nodemon src/index.js",
-    "watch-sass": "nodemon -w html/scss -x 'npm run-script sass'",
-    "sass": "node-sass html/scss -o html/css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "nodemonConfig": {
     "verbose": true,
-    "ext": "html css scss js"
+    "ext": "html css js"
   },
   "repository": {
     "type": "git",
@@ -34,7 +32,6 @@
     "zipkin-transport-http": "^0.14.3"
   },
   "devDependencies": {
-    "node-sass": "^4.10.0",
     "nodemon": "^1.18.7"
   }
 }

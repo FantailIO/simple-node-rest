@@ -82,6 +82,11 @@ app.get('/api', (req, res) => {
       logDebug("Processing the response")
       var annotatedResponse = {};
       annotatedResponse.label = label;
+
+      if(upstreamResponse.status != 200) {
+        annotatedResponse.failed = true;
+      }
+
       //console.log("upstream.upstream set to: ", body.upstream);
       annotatedResponse.upstream = {};
       annotatedResponse.upstream.server = upstream;
@@ -90,13 +95,18 @@ app.get('/api', (req, res) => {
 
       upstreamResponse.json().then(json =>{
         logDebug("Reading the body JSON")
+
+        if(json.failed) {
+          annotatedResponse.failed = true;
+        }
         //console.log("setting label");
         annotatedResponse.upstream.label = json.label;
         //console.log("upstream.label set to: ", body.upstream);
         annotatedResponse.upstream.upstream = json.upstream;
 
-        annotatedResponse.content = json.content ? json.content : json;
-        //console.log("content set to: ", annotatedResponse.content);
+        if(! annotatedResponse.failed) {
+          annotatedResponse.content = json.content ? json.content : json;
+        }
 
         res.end(JSON.stringify(annotatedResponse));
         logDebug("Writing my response")
